@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+    <title>Sup</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript">
+    window.onload = function(){
+        var schema = {
+            fields: [
+                {name: 'first_name', type: 'text', display: 'First Name'},
+                {name: 'last_name', type: 'text', display: 'Last Name'},
+                {name: 'country', type: 'dropdown', display: 'Country',
+                    values: ['lebanon', 'france', 'usa'] 
+                }
+            ]
+        };
+
+        var form = d3.select("body").append("form");
+        
+        var p = form.selectAll("p")
+            .data(schema.fields)
+            .enter()
+            .append("p")
+            .each(function(d){
+                var self = d3.select(this);
+                var label = self.append("label")
+                    .text(d.display)
+                    .style("width", "100px")
+                    .style("display", "inline-block");
+
+                if(d.type == 'text'){
+                    var input = self.append("input")
+                        .attr({
+                            type: function(d){ return d.type; },
+                            name: function(d){ return d.name; }
+                        });
+                }
+
+                if(d.type == 'dropdown'){
+                var select = self.append("select")
+                        .attr("name", "country")
+                        .selectAll("option")
+                        .data(d.values)
+                        .enter()
+                        .append("option")
+                        .text(function(d) { return d; });
+                }
+
+            });
+
+        form.append("button").attr('type', 'submit').text('Save');
+    }
+    </script>
+</head>
+<body>
+</body>
+</html>
