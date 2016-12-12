@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <style>
+#btn{
+	border-radius: 15px;
+
+	display:block;
+	border-style:solid;
+	border-color:#bbb #888 #666 #aaa;
+	border-width:3px 4px 4px 3px;
+	
+	height:2em;
+	background:#ccc;
+	color:#333;
+	line-height:2;
+	text-align:center;
+	text-decoration:none;
+	font-weight:900;
+}
+#btn:hover{
+	border-color: #666 #aaa #bbb #888;
+	border-width:4px 3px 3px 4px;
+	color:#000;
+}
+
+.ticks {
+  font: 10px sans-serif;
+}
+
+.track,
+.track-inset,
+.track-overlay {
+  stroke-linecap: round;
+}
+
+.track {
+  stroke: #000;
+  stroke-opacity: 0.3;
+  stroke-width: 10px;
+}
+
+.track-inset {
+  stroke: #ddd;
+  stroke-width: 8px;
+}
+
+.track-overlay {
+  pointer-events: stroke;
+  stroke-width: 50px;
+  cursor: crosshair;
+}
+
+.handle {
+  fill: #fff;
+  stroke: #000;
+  stroke-opacity: 0.5;
+  stroke-width: 1.25px;
+}
+
+</style>
+</head>
+<body>
+	<!--<div id="chart"></div>-->
+	<!--<svg id = "svg2" width="2000" height="300"></svg>-->
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+    <script src="http://d3js.org/topojson.v0.min.js"></script>
+   
+    
+
+   
+<script>
+
+//console.log(new_order[9]);
+var p = 0;
+var q = 0;
+var bla = 0;
+var counter = -1;
+var width = 2800, //2800
+    height = 1150,/// 730, //1150
+    div = d3.select('#chart'),
+   
+    rw = 0,
+    rh = 0;
+	
+	var svg = d3.select("body").append("svg")
+				.attr("id","svg1")
+				.attr("width",width)
+				.attr("height",height)
+				
+				.style("background-color","#A9A9A9")
+				//.style("background-color","black")
+				//.style("opacity",0.5);
+				
+	svg.append("rect")
+	.attr("id","borderRect")
+    .attr("width", width)
+    .attr("height", height)
+    //.attr("fill", "#C0C0C0")  
+	.attr("fill", "#e5f5f9")  
+	.attr("stroke-width","5px")
+	.attr("stroke","black");
+				
+var new_order = {0:11,1:12,2:1,3:4,4:3,5:18,6:9,7:10,8:19,9:2,10:13,11:14,12:15,13:16,14:0,15:20,16:5,17:7,18:17,19:8,20:8};
+var order_by_magnitude={11:0,5:1,1:2,9:3,3:4,7:5,4:6,20:7,18:8,17:9,14:10,0:11,13:12,15:13,16:14,8:15,19:16,10:17,2:18,6:19,12:20};
+
+
+var order_flag = "original";
+		
+	
+var flag  = "both";
+var filename = "flux_0";
+//o_flag = "not";
+
+function order_reset(o_flag)
+{
+	order_flag = o_flag;
+	loadFlux();
+}
+
+//order_reset(o_flag);
+function flag_reset(flag1)
+{
+	flag = flag1;
+	loadFlux();
+}
+function flux_reset(filename1)
+{
+	filename = filename1;
+	loadFlux();
+}
+
+function loadFlux()
+{
+	
+	//console.log("flag = "+flag);
+d3.queue()
+        .defer(d3.json, "./DIM-slidding_window/"+filename+".json")
+        .await(ready);
+
+ }
+
+	
+
+function ready(error,data)
+{
+	if (error) throw error;
+	//printData(data);
+	matrix(data);
+
+	//console.log("ready ");
+}
+
+
+var rulesLength;
+function matrix(data)
+{
+	p=0;
+				rulesLength=data.rules.length;
+				
+				var horRulesLeftStart = 140;
+			var ruleText;
+			
+			d3.select('body').select('#gfilter').remove();
+			var gfilter = d3.select('body').append('g').attr("id","gfilter");
+			//	
+			for(var i=0;i<rulesLength;i++)
+			{
+				j=i+1;
+				if(order_flag!="original")
+				{
+				j=j-1;
+				//new_order1 = {11:0,5:1,1:2,9:3,3:4,7:5,4:6,20:7,18:8,17:9,14:10,0:11,13:12,15:13,16:14,8:15,19:16,10:17,2:18,6:19,12:20};
+				//i=i-1;
+				if(order_flag=='magnitude')
+					j=order_by_magnitude[j];
+				else
+					j = new_order[j];
+				j = j+1;
+				}
+				j=j-1;
+				ruleText = data.rules[j];
+				//ruleText ="Rule "+j;
+				gfilter.append('div')
+                         .attr('id', 'RulesLabel')
+                         .style('position', 'absolute')
+                         .style('opacity', 1)
+                         //.style('background-color', '#023858')
+						 .text(ruleText)
+						// .style("text-align","center")
+                         .style('width', '70px')
+						 .style('height','20px')
+                         .style("left", horRulesLeftStart+'px')
+                         .style("top", "80px")
+                         .style('line-height', 1)
+                        .style('font-weight', 'bold')
+						.style("font-size","18px")
+                        // .style("font-family", "sans-serif")
+                        // .style("font-size", "15px")
+                         //.style("fill", "black")
+                        // .style('padding', '3px')
+                         //.style('color', '#000')
+						 .style('color', 'black')
+                         .style('border-radius', '2px');
+						 
+				
+				horRulesLeftStart = horRulesLeftStart + 120;
+				//horRulesLeftStart = horRulesLeftStart *50;
+				//horRulesLeftStart = ((j+1) *100)+50;
+			}
+			
+			var vertRulesTopStart = 105;
+			
+			for(var i=0;i<rulesLength;i++)
+			{
+
+				ruleText = data.rules[i];
+				//row= i+1;
+				//ruleText ="Rule "+row;
+				gfilter.append('div')
+                         .attr('id', 'RulesLabel')
+                         .style('position', 'absolute')
+                         .style('opacity', 1)
+                         //.style('background-color', '#023858')
+						 .text(ruleText)
+						 .style("text-align","center")
+                         .style('width', '70px')
+						 .style('height','20px')
+                         .style("left", '20px')
+                         .style("top", vertRulesTopStart+'px')
+                         .style('line-height', 1)
+                         .style('font-weight', 'bold')
+						 .style("font-size","15px")
+                         .style('padding', '3px')
+                         //.style('color', '#000')
+						 .style('color', 'black')
+                         .style('border-radius', '2px');
+				
+				vertRulesTopStart = vertRulesTopStart + 50;
+			}
+				//console.log(rulesLength);
+				
+				var dataValues = [];
+
+	for (var k = 0; k < rulesLength; k += 1) {
+		dataValues.push(d3.range(rulesLength));
+	}
+	
+	var oldD;
+	var newD;
+	var xScale = d3.scaleLinear()
+	.domain([0,199568900])
+                     //.domain([0, d3.max(data.fluxs, function(d) { return data.fluxs[p][d]; })])
+                     .range([50
+                     	, 100]);
+	
+	
+	// Create a group for each row in the data matrix and
+	// translate the group vertically
+	svg.selectAll('g').remove();
+	var grp = svg.selectAll('g')
+    .data(dataValues)
+    .enter()
+    .append('g')
+    .attr('transform', function(d, i) {
+        //return 'translate(0, ' + 100 * i + ')';
+		return 'translate(40, ' + i * 50 + ')'; //changed
+		
+    });
+  
+
+// For each group, create a set of rectangles and bind 
+// them to the inner array (the inner array is already
+// binded to the group)
+	grp.selectAll("rect").remove();
+	grp.selectAll("rect")
+    .data(function(d) { return d; })
+    .enter()
+    .append('rect')
+        //.attr('x', function(d, i) { return 100 * i; })
+		//.attr('x', function(d, i) { return 120 * i; })
+        //.attr('width', getWidth)
+		.attr('x', function(d, i) { return 120 * i; })
+		.attr("width","80")
+		.attr("height","40")
+        //.attr('height', getHeight)
+		.style("stroke", strokeColor).attr("stroke-width","5")
+        .on('mouseover', function(d) { d3.select(this)
+                        .append("title").text(fillText(d));
+		})
+		
+		.attr("fill",fillColor).attr("transform","translate(110,100)")
+			  
+/*	.attr("fill","#ffffff") 
+		.transition()
+			.duration(100)
+			.delay(function (d, i) {
+				//console("The influence of Rule " + (p+1) + " on Rule " + (d+1) + " is " + data.fluxs[p][d]);
+				return i * 25;
+			})
+			.attr("fill",fillColor)*/
+		.append("svg:title")
+		.text(fillText);
+	//	.attr("transform","translate(100,100)")
+		
+    
+		//.text(fillText);
+
+		function fillText(d)
+		{
+			col=d;
+			if(order_flag!="original")
+			{
+				if(order_flag=='magnitude')
+					d=order_by_magnitude[d];
+				else
+					d= new_order[d];
+			}
+			var textVal = "The influence of Rule " + (p+1) + " on Rule " + (d+1) + " is " + data.fluxs[p][d];
+			if(col == 20)
+			{
+				p = p + 1;
+			}
+			if(p == 21)
+			{
+				p = 0;
+			}
+			return textVal;
+		}
+		function strokeColor(d)
+		{
+			var chosenColor = "#C0C0C0";
+			col=d;
+			if(order_flag!="original")
+			{
+				if(order_flag=='magnitude')
+					d=order_by_magnitude[d];
+				else
+					d= new_order[d];
+			}
+			/*if(order_flag!="original")
+				p=new_order[p];*/
+			if(data.fluxs[p][d] == 0)
+			{
+				//chosenColor = "#eeeeee";
+				chosenColor = "#C0C0C0";
+				//chosenColor = "#A9A9A9";
+			}
+			else if(data.fluxs[p][d] > 0)
+			{
+				if(flag!="red")
+				chosenColor = "green";
+			}
+			else if(data.fluxs[p][d] < 0)
+			{
+				if(flag!="green")
+				chosenColor = "red";
+			}
+
+			if(col == 20)
+			{
+				p = p + 1;
+			}
+			if(p == 21)
+			{
+				p = 0;
+			}
+			return chosenColor;
+		}
+		function fillColor(d)
+		{
+			col=d;
+			
+			var chosenColor = "#e5f5f9";
+			
+			if(order_flag!="original")
+			{
+				if(order_flag=='magnitude')
+					d=order_by_magnitude[d];
+				else
+					d= new_order[d];
+			}
+		
+			if(data.fluxs[p][d] == 0)
+					{
+						chosenColor='#e5f5f9';
+						//schosenColor='#eeeeee';
+						//chosenColor = "#C0C0C0";
+						//chosenColor = "black";
+					}
+					else if(data.fluxs[p][d] > 0)
+					{
+						if(flag != "red")
+						{
+						var h = data.fluxs[p][d];
+						h  = Math.round(h);
+						var h1  = "0."+h.toString().length;
+						//console.log(h);
+						h = 1-parseFloat(h1);
+						chosenColor = d3.hsl(100, 0.5, h);
+						}
+
+					}
+					else if(data.fluxs[p][d] < 0)
+					{
+						if(flag != "green")
+						{
+							var h = data.fluxs[p][d];
+							h  = Math.round(h);
+							h = Math.abs(h);
+							
+							var h1  = h.toString().length;
+							//h1.replace("\\.", "");
+							h1  = "0."+h1;
+							//console.log("Negative value  = "+h1);
+							h = (1-parseFloat(h1))+0.1;
+							
+							//console.log("positive = "+h+" == "+h1);
+							//chosenColor = "green";
+							chosenColor = d3.hsl(0, 0.5, h);
+						}
+						//chosenColor = "red";
+					}
+			
+			if(col == 20)
+			{
+				p = p + 1;
+			}
+			if(p == 21)
+			{
+				p = 0;
+			}
+			return chosenColor;
+		}
+		
+		function getWidth(d)
+		{
+			col=d;
+			var cellWidth =100;
+		//	console.log("hello = "+data.fluxs[p][d]);
+		if(order_flag!="original")
+			{
+				if(order_flag=='magnitude')
+					d=order_by_magnitude[d];
+				else
+					d= new_order[d];
+			}
+//	if(order_flag!="original")
+//				p=new_order[p];
+		//	console.log("p= "+p+" d= "+d+" val "+data.fluxs[p][d]);
+		val = data.fluxs[p][d];
+		val = Math.round(val);
+			val = Math.abs(val);
+			h = val.toString();
+			l = h.length;
+
+			if(data.fluxs[p][d] == 0)
+					{
+						cellWidth = 100;
+					}
+					else if(data.fluxs[p][d] > 0)
+					{
+						//cellWidth =  xScale(data.fluxs[p][d]);
+						if(flag !="red")
+						cellWidth= l*10;
+						//console.log("cellWidth "+cellWidth);
+					}
+					else if(data.fluxs[p][d] < 0)
+					{
+						/*val = data.fluxs[p][d];
+						val = Math.abs(val);
+						cellWidth = xScale(val);*/
+						if(flag !="green")
+						cellWidth = l*10;
+					}
+			
+			if(col == 20)
+			{
+				p = p + 1;
+			}
+			if(p == 21)
+			{
+				p = 0;
+			}
+			return cellWidth;
+		}
+		
+		function getHeight(d)
+		{
+			col=d;
+			var cellHeight =20;
+			//	console.log("hello width= "+data.fluxs[p][d]);
+			if(order_flag!="original")
+			{
+				if(order_flag=='magnitude')
+					d=order_by_magnitude[d];
+				else
+					d= new_order[d];
+			}
+		//if(order_flag!="original")
+		//		p=new_order[p];
+			//console.log("p= "+p+" d= "+d+" val "+data.fluxs[p][d]);
+			val = data.fluxs[p][d];
+			val = Math.round(val);
+			val = Math.abs(val);
+			h = val.toString();
+			l = h.length;
+			
+			if(data.fluxs[p][d] == 0)
+					{
+						cellHeight = 20;
+					}
+					else if(data.fluxs[p][d] > 0)
+					{
+						//cellHeight =  xScale(data.fluxs[p][d]);
+						if(flag!="red")
+						cellHeight = 20;
+					}
+					else if(data.fluxs[p][d] < 0)
+					{
+						/*val = data.fluxs[p][d];
+						val = Math.abs(val);
+						cellHeight = xScale(val);*/
+						if(flag !="green")
+						cellHeight = 20;
+					}
+			
+			if(col == 20)
+			{
+				p = p + 1;
+			}
+			if(p == 21)
+			{
+				p = 0;
+			}
+			return cellHeight;
+		}
+		
+		
+}
+
+
+
+
+
+</script>
+ <script src="cluster_ver2.js" language="JavaScript"></script>
+  <script src="flux_slider_ver2.js" language="JavaScript"></script>
+</body>
+</html>
